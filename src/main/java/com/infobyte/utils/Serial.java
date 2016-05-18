@@ -31,6 +31,7 @@ public class Serial implements SerialPortEventListener{
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
 			System.out.println("Conecatado com sucesso na porta serial: " + port + " !" );
+			System.out.println("Aguardando Dados do Arduino...");
 			
 		} catch (Exception e) {
 			System.err.println("Error ao abrir a porta serial. " + e + " " + e.getMessage());
