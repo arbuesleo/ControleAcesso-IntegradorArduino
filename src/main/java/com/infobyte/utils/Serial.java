@@ -47,6 +47,11 @@ public class Serial implements SerialPortEventListener{
 			
 			try {	
 				String tag = this.input.readLine();
+				if(tag.equals("001")){
+					System.out.println("Resposta Timout arduino");
+					System.out.println("Aguardando Dados do Arduino...");
+					return;
+				}
 				String endereco = "http://localhost:8888/acesso/registrarAcesso?tag=" + tag.toUpperCase().replace(" ", ""); 
 				System.out.println("Tag capturada: " + tag.toUpperCase().replace(" ", ""));							
 								
@@ -59,6 +64,7 @@ public class Serial implements SerialPortEventListener{
 				if (conn.getResponseCode() != 200) {
 					throw new RuntimeException("Failed : HTTP error code : "
 							+ conn.getResponseCode());
+					
 				}
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 					(conn.getInputStream())));
@@ -76,10 +82,12 @@ public class Serial implements SerialPortEventListener{
 				System.out.println("Desconectando do servidor rest...");
 				conn.disconnect();			
 				System.out.println("Desconectado do servidor rest!");
+				System.out.println("---------------------------------------------------------------------------------");
 				System.out.println("Aguardando Dados do Arduino...");
 				
 			} catch (Exception e) {
 				System.err.println("Erro ao ler dados do arduino. " + e.getMessage());
+				System.out.println("---------------------------------------------------------------------------------");
 			}
 		}
 	}
@@ -97,9 +105,9 @@ public class Serial implements SerialPortEventListener{
 	public void fecharSerial() {
 		try {
 			if(serialPort != null){
-				System.out.println("Desconectando da COM! " + serialPort.getName());
+				System.out.println("Desconectando da: " + serialPort.getName());
 				serialPort.close();
-				System.out.println("Desconectado da COM!"  + serialPort.getName());				
+				System.out.println("Desconectado da: "  + serialPort.getName());				
 			}
 		} catch (Exception e) {
 			System.err.println("Erro ao enviar mensagem para " + "o Arduino. " + e.getMessage());
