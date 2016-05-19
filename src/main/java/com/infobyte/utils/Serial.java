@@ -11,18 +11,17 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
-public class Serial implements SerialPortEventListener{
-	
+public class Serial implements SerialPortEventListener{	
 
 	
 	
 	private static final int RATE = 9600;
-	
+	SerialPort serialPort = null;
 	public void abrirPortaSerial(String port) {
 		
 		try {
 			CommPortIdentifier portId = CommPortIdentifier.getPortIdentifier(port);
-			SerialPort serialPort = (SerialPort) portId.open(this.getClass().getName(), 2000);
+			serialPort = (SerialPort) portId.open(this.getClass().getName(), 2000);
 			serialPort.setSerialPortParams(RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 			serialPort.enableReceiveTimeout(1000);
 			serialPort.enableReceiveThreshold(0);
@@ -48,13 +47,13 @@ public class Serial implements SerialPortEventListener{
 			
 			try {	
 				String tag = this.input.readLine();
-				String endereco = "http://localhost:8888/acesso/registrarAcesso?tag=" + tag; 
-				System.out.println("Tag capturada: " + tag);							
+				String endereco = "http://localhost:8888/acesso/registrarAcesso?tag=" + tag.toUpperCase().replace(" ", ""); 
+				System.out.println("Tag capturada: " + tag.toUpperCase().replace(" ", ""));							
 								
 				URL url = new URL(endereco);
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("GET");
-				conn.setRequestProperty("Accept", "application/json");
+				//conn.setRequestProperty("Accept", "application/json");
 				System.out.println("Conectando ao servidor rest...");
 
 				if (conn.getResponseCode() != 200) {
@@ -77,6 +76,7 @@ public class Serial implements SerialPortEventListener{
 				System.out.println("Desconectando do servidor rest...");
 				conn.disconnect();			
 				System.out.println("Desconectado do servidor rest!");
+				System.out.println("Aguardando Dados do Arduino...");
 				
 			} catch (Exception e) {
 				System.err.println("Erro ao ler dados do arduino. " + e.getMessage());
@@ -89,6 +89,18 @@ public class Serial implements SerialPortEventListener{
 	public void enviarMensagemArduino(String message) {
 		try {
 			this.output.write(message.getBytes());
+		} catch (Exception e) {
+			System.err.println("Erro ao enviar mensagem para " + "o Arduino. " + e.getMessage());
+		}
+	}
+	
+	public void fecharSerial() {
+		try {
+			if(serialPort != null){
+				System.out.println("Desconectando da COM! " + serialPort.getName());
+				serialPort.close();
+				System.out.println("Desconectado da COM!"  + serialPort.getName());				
+			}
 		} catch (Exception e) {
 			System.err.println("Erro ao enviar mensagem para " + "o Arduino. " + e.getMessage());
 		}
